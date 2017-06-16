@@ -1,0 +1,28 @@
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/andygrunwald/go-trending"
+
+[[constraint]]
+  name = "github.com/aws/aws-sdk-go"
+  version = "1.8.39"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/eawsy/aws-lambda-go-core"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/eawsy/aws-lambda-go-event"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/gorilla/feeds"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/op/go-logging"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/yunspace/serverless-golang"

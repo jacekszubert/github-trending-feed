@@ -1,25 +1,27 @@
 package main
 
-import(
-	"fmt"
+import (
 	"bytes"
-	"time"
-	"strings"
-	"io/ioutil"
+	"fmt"
 	"github.com/andygrunwald/go-trending"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/eawsy/aws-lambda-go-core/service/lambda/runtime"
+	"github.com/eawsy/aws-lambda-go-event/service/lambda/runtime/event/cloudwatchschedevt"
 	"github.com/gorilla/feeds"
 	"github.com/op/go-logging"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"io/ioutil"
+	"os"
+	"strings"
+	"time"
 )
 
 var log = logging.MustGetLogger("github-trending")
 
 const authorName string = "Jacek Szubert"
 const authorEmail string = "jacek.szubert@gmail.com"
-const viewedProjectsS3Path string = "s3://kekmeme/feed/github_trending"
 
 type project struct {
 	name        string
@@ -39,7 +41,7 @@ func parseS3Path(s3Path string) (string, string) {
 
 func getDataFromS3(s3FullPath string) string {
 	s3Bucket, s3Path := parseS3Path(s3FullPath)
-	
+
 	s3svc := s3.New(session.New())
 	input := &s3.GetObjectInput{
 		Bucket: aws.String(s3Bucket),
@@ -66,7 +68,7 @@ func getDataFromS3(s3FullPath string) string {
 
 func putDataToS3(s3FullPath string, data string) {
 	s3Bucket, s3Path := parseS3Path(s3FullPath)
-	
+
 	s3svc := s3.New(session.New())
 	input := &s3.PutObjectInput{
 		Bucket:      aws.String(s3Bucket),
@@ -118,17 +120,19 @@ func generateFeed(projects []project) *feeds.Feed {
 		}
 
 		item := &feeds.Item{
-			Title:       title,
-			Link:        &feeds.Link{Href: project.url},
-			Author:      &feeds.Author{Name: project.author, Email: project.authorURL},
-			Created:     now,
+			Title:   title,
+			Link:    &feeds.Link{Href: project.url},
+			Author:  &feeds.Author{Name: project.author, Email: project.authorURL},
+			Created: now,
 		}
 		feed.Items = append(feed.Items, item)
 	}
 	return feed
 }
 
-func main() {
+func Handle(evt *cloudwatchschedevt.Event, ctx *runtime.Context) (interface{}, error) {
+	var viewedProjectsS3Path string = "s3://" + os.Getenv("S3_BUCKET") + "/github_trending_all_daily"
+
 	trend := trending.NewTrending()
 	viewedProjects := strings.Split(getDataFromS3(viewedProjectsS3Path), "\n")
 	newProjects := []project{}
@@ -137,10 +141,19 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	var author string
+	var authorURL string
 	for _, proj := range projects {
 		proj.Name = strings.Replace(proj.Name, " ", "", -1)
-		if ! stringInArray(proj.Name, viewedProjects) {
+		if !stringInArray(proj.Name, viewedProjects) {
 			viewedProjects = append(viewedProjects, proj.Name)
+			if len(proj.Contributer) > 0 {
+				author = proj.Contributer[0].DisplayName
+				authorURL = proj.Contributer[0].URL.String()
+			} else {
+				author = "NaN"
+				authorURL = "NaN"
+			}
 			newProjects = append(
 				newProjects,
 				project{
@@ -148,8 +161,8 @@ func main() {
 					language:    proj.Language,
 					description: proj.Description,
 					url:         proj.URL.String(),
-					author:      proj.Contributer[0].DisplayName,
-					authorURL:   proj.Contributer[0].URL.String(),
+					author:      author,
+					authorURL:   authorURL,
 				},
 			)
 		}
@@ -160,12 +173,14 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	putDataToS3(viewedProjectsS3Path + ".atom", atom)
+	putDataToS3(viewedProjectsS3Path+".atom", atom)
 	rss, err := feed.ToRss()
 	if err != nil {
 		log.Fatal(err)
 	}
-	putDataToS3(viewedProjectsS3Path + ".rss", rss)
+	putDataToS3(viewedProjectsS3Path+".rss", rss)
 
 	putDataToS3(viewedProjectsS3Path, strings.Join(viewedProjects, "\n"))
+
+	return nil, nil
 }
