@@ -10,7 +10,7 @@ provider:
   name: aws
   runtime: python2.7
   stage: ${env:ENV}
-  memorySize: 1024
+  memorySize: 128
   timeout: 300
   region: eu-west-1
   #profile: #uncomment and set profile name if using non-default aws profile
