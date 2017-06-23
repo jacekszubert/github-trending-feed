@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"github.com/abadojack/whatlanggo"
 	"github.com/andygrunwald/go-trending"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -22,6 +23,9 @@ var log = logging.MustGetLogger("github-trending")
 
 const authorName string = "Jacek Szubert"
 const authorEmail string = "jacek.szubert@gmail.com"
+
+//Filter out nautral languages by ISO 639-3 code
+var naturalLanguagesToExclude = []string{"cmn"}
 
 type project struct {
 	name        string
@@ -94,6 +98,11 @@ func stringInArray(str string, array []string) bool {
 	return false
 }
 
+func recognizeNaturalLanguage(text string) string {
+	languageInfo := whatlanggo.Detect(text)
+	return whatlanggo.LangToString(languageInfo.Lang)
+}
+
 func generateFeed(projects []project) *feeds.Feed {
 	now := time.Now().UTC()
 	feed := &feeds.Feed{
@@ -143,9 +152,11 @@ func Handle(evt *cloudwatchschedevt.Event, ctx *runtime.Context) (interface{}, e
 	}
 	var author string
 	var authorURL string
+	var naturalLanguage string
 	for _, proj := range projects {
 		proj.Name = strings.Replace(proj.Name, " ", "", -1)
-		if !stringInArray(proj.Name, viewedProjects) {
+		naturalLanguage = recognizeNaturalLanguage(proj.Description)
+		if !stringInArray(proj.Name, viewedProjects) && !stringInArray(naturalLanguage, naturalLanguagesToExclude) {
 			viewedProjects = append(viewedProjects, proj.Name)
 			if len(proj.Contributer) > 0 {
 				author = proj.Contributer[0].DisplayName
@@ -184,3 +195,5 @@ func Handle(evt *cloudwatchschedevt.Event, ctx *runtime.Context) (interface{}, e
 
 	return nil, nil
 }
+
+func main() {}

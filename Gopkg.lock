@@ -9,6 +9,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/abadojack/whatlanggo"
+  packages = ["."]
+  revision = "6f8588be1544807416568b453f786a24284d0417"
+
+[[projects]]
+  branch = "master"
   name = "github.com/andybalholm/cascadia"
   packages = ["."]
   revision = "349dd0209470eabd9514242c688c403c0926d266"
@@ -22,8 +28,8 @@
 [[projects]]
   name = "github.com/aws/aws-sdk-go"
   packages = ["aws","aws/awserr","aws/awsutil","aws/client","aws/client/metadata","aws/corehandlers","aws/credentials","aws/credentials/ec2rolecreds","aws/credentials/endpointcreds","aws/credentials/stscreds","aws/defaults","aws/ec2metadata","aws/endpoints","aws/request","aws/session","aws/signer/v4","internal/shareddefaults","private/protocol","private/protocol/query","private/protocol/query/queryutil","private/protocol/rest","private/protocol/restxml","private/protocol/xml/xmlutil","service/s3","service/sts"]
-  revision = "c861d27d0304a79f727e9a8a4e2ac1e74602fdc0"
-  version = "v1.8.39"
+  revision = "77c852b6b256f359ac08665b84d04f7d660da7ac"
+  version = "v1.10.2"
 
 [[projects]]
   branch = "master"
@@ -34,7 +40,7 @@
 [[projects]]
   branch = "master"
   name = "github.com/eawsy/aws-lambda-go-event"
-  packages = ["service/lambda/runtime/event/apigatewayproxyevt","service/lambda/runtime/event/cloudwatchschedevt","service/lambda/runtime/event/kinesisstreamsevt"]
+  packages = ["service/lambda/runtime/event/cloudwatchschedevt"]
   revision = "a318481f661f091bafea408f9967cb1ac5bf8905"
 
 [[projects]]
@@ -63,19 +69,13 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/yunspace/serverless-golang"
-  packages = ["aws/event/apigateway"]
-  revision = "940cc9239fd36e2a0f5fe07b2c157b9bc1a76c9f"
-
-[[projects]]
-  branch = "master"
   name = "golang.org/x/net"
   packages = ["html","html/atom"]
-  revision = "1a68b1313cf4ad7778376e82641197b60c02f65c"
+  revision = "057a25b06247e0c51ba15d8ae475feb2fcb72164"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "2b5d29f789091b5802479c60eb7272c18d32d3fb1fa9e2a3e51dbd41236dbd88"
+  inputs-digest = "4e3b951ddc493d61d269a33de8bc28a342490d7f95fb7493604a242814702f08"
   solver-name = "gps-cdcl"
   solver-version = 1
