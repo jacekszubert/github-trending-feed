@@ -25,7 +25,7 @@ const authorName string = "Jacek Szubert"
 const authorEmail string = "jacek.szubert@gmail.com"
 
 //Filter out nautral languages by ISO 639-3 code
-var naturalLanguagesToExclude = []string{"cmn"}
+var naturalLanguagesToExclude = []string{"cmn", "kor"}
 
 type project struct {
 	name        string
